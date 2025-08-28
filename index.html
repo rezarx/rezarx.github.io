@@ -1,10 +1,96 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>REZAR</title>
-  </head>
-  <body>
-    <h1>Merhaba Dünya!</h1>
-    <p>GitHub Pages ile oluşturulmuş basit bir site.</p>
-  </body>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<title>PUBG Hesap Satış</title>
+<style>
+  #dashboard, #accounts { display: none; }
+</style>
+</head>
+<body>
+
+<h1>PUBG Hesap Satış Sitesi</h1>
+
+<div id="login">
+  <h3>Yetkili Girişi</h3>
+  <input type="password" id="password" placeholder="Şifre" />
+  <button onclick="login()">Giriş</button>
+  <p id="login-msg" style="color:red;"></p>
+</div>
+
+<div id="accounts">
+  <h3>Satılık Hesaplar</h3>
+  <ul id="account-list"></ul>
+</div>
+
+<div id="dashboard">
+  <h3>Yetkili Paneli</h3>
+  <ul id="dashboard-list"></ul>
+  <button onclick="logout()">Çıkış</button>
+</div>
+
+<script>
+const ACCOUNTS = [
+  {id: 1, oyun: "PUBG", user: "player1", pass: "1234", fiyat: "150₺", durum: "satılık"},
+  {id: 2, oyun: "PUBG", user: "player2", pass: "abcd", fiyat: "200₺", durum: "satılık"},
+];
+
+// Ziyaretçi için hesapları göster
+function showAccounts() {
+  const list = document.getElementById("account-list");
+  list.innerHTML = "";
+  ACCOUNTS.filter(acc => acc.durum === "satılık").forEach(acc => {
+    const li = document.createElement("li");
+    li.textContent = `${acc.oyun} - ${acc.user} - ${acc.fiyat} - ${acc.durum}`;
+    list.appendChild(li);
+  });
+  document.getElementById("accounts").style.display = "block";
+}
+
+// Yetkili girişi
+function login() {
+  const pw = document.getElementById("password").value;
+  if (pw === "admin123") {
+    document.getElementById("login").style.display = "none";
+    showDashboard();
+  } else {
+    document.getElementById("login-msg").textContent = "Hatalı şifre!";
+  }
+}
+
+// Yetkili paneli göster
+function showDashboard() {
+  const list = document.getElementById("dashboard-list");
+  list.innerHTML = "";
+  ACCOUNTS.forEach(acc => {
+    const li = document.createElement("li");
+    li.textContent = `${acc.oyun} - ${acc.user} - Şifre: ${acc.pass} - ${acc.fiyat} - Durum: ${acc.durum}`;
+    if (acc.durum === "satılık") {
+      const btn = document.createElement("button");
+      btn.textContent = "Satıldı Olarak İşaretle";
+      btn.onclick = () => {
+        acc.durum = "satıldı";
+        showDashboard();
+      };
+      li.appendChild(btn);
+    }
+    list.appendChild(li);
+  });
+  document.getElementById("dashboard").style.display = "block";
+}
+
+// Çıkış yap
+function logout() {
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("login").style.display = "block";
+  document.getElementById("password").value = "";
+  document.getElementById("login-msg").textContent = "";
+  showAccounts();
+}
+
+// Site açılınca ziyaretçi görünümü
+showAccounts();
+</script>
+
+</body>
 </html>
