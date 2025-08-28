@@ -2,69 +2,216 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>PUBG Hesap Satış</title>
 <style>
-  #dashboard, #accounts { display: none; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    margin: 0; padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  #accounts, #dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .account-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+    width: 220px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+  }
+  .account-card:hover {
+    transform: translateY(-5px);
+  }
+  .account-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+  }
+  .account-info {
+    padding: 10px;
+    flex-grow: 1;
+  }
+  .account-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    color: #222;
+  }
+  .account-info p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 14px;
+  }
+  .account-info .price {
+    font-weight: bold;
+    color: #e74c3c;
+  }
+  button {
+    cursor: pointer;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 0 0 8px 8px;
+    padding: 10px;
+    font-size: 16px;
+  }
+  button:disabled {
+    background-color: #aaa;
+    cursor: default;
+  }
+  #login {
+    text-align: center;
+    margin-top: 20px;
+  }
+  #login input[type="password"] {
+    padding: 8px;
+    font-size: 16px;
+  }
+  #login button {
+    padding: 8px 12px;
+    font-size: 16px;
+  }
+  #login-msg {
+    color: red;
+    margin-top: 10px;
+  }
+  #logout-btn {
+    display: block;
+    margin: 20px auto;
+    background-color: #c0392b;
+    padding: 10px 20px;
+    border-radius: 6px;
+  }
 </style>
 </head>
 <body>
 
-<h1>PUBG Hesap Satış Sitesi</h1>
+<h1>PUBG Hesap Satış</h1>
 
 <div id="login">
-  <h3>Yetkili Girişi</h3>
-  <input type="password" id="password" placeholder="Şifre" />
-  <button onclick="login()">Giriş</button>
-  <p id="login-msg" style="color:red;"></p>
+  <input type="password" id="password" placeholder="Yetkili Şifresi" />
+  <button onclick="login()">Giriş Yap</button>
+  <p id="login-msg"></p>
 </div>
 
-<div id="accounts">
-  <h3>Satılık Hesaplar</h3>
-  <ul id="account-list"></ul>
-</div>
+<div id="accounts"></div>
 
-<div id="dashboard">
-  <h3>Yetkili Paneli</h3>
-  <ul id="dashboard-list"></ul>
-  <button onclick="logout()">Çıkış</button>
-</div>
+<div id="dashboard" style="display:none;"></div>
+
+<button id="logout-btn" style="display:none;" onclick="logout()">Çıkış Yap</button>
 
 <script>
 const ACCOUNTS = [
-  {id: 1, oyun: "PUBG", user: "player1", pass: "1234", fiyat: "150₺", durum: "satılık"},
-  {id: 2, oyun: "PUBG", user: "player2", pass: "abcd", fiyat: "200₺", durum: "satılık"},
+  {
+    id: 1,
+    oyun: "PUBG",
+    kullanici: "player1",
+    sifre: "1234",
+    fiyat: "150₺",
+    durum: "satılık",
+    aciklama: "Yüksek seviye hesap, skinler dahil.",
+    img: "https://i.imgur.com/Q7tFkRT.jpg"
+  },
+  {
+    id: 2,
+    oyun: "PUBG",
+    kullanici: "player2",
+    sifre: "abcd",
+    fiyat: "200₺",
+    durum: "satılık",
+    aciklama: "Özel silahlar ve oyun içi para mevcut.",
+    img: "https://i.imgur.com/lZP3zzN.jpg"
+  },
+  {
+    id: 3,
+    oyun: "PUBG",
+    kullanici: "player3",
+    sifre: "pass777",
+    fiyat: "120₺",
+    durum: "satıldı",
+    aciklama: "Orta seviye hesap, uygun fiyat.",
+    img: "https://i.imgur.com/Zr6hvRu.jpg"
+  }
 ];
 
-// Ziyaretçi için hesapları göster
+const accountsDiv = document.getElementById("accounts");
+const dashboardDiv = document.getElementById("dashboard");
+const loginDiv = document.getElementById("login");
+const logoutBtn = document.getElementById("logout-btn");
+const loginMsg = document.getElementById("login-msg");
+
+// Ziyaretçi görünümü: Satılık hesapları göster
 function showAccounts() {
-  const list = document.getElementById("account-list");
-  list.innerHTML = "";
-  ACCOUNTS.filter(acc => acc.durum === "satılık").forEach(acc => {
-    const li = document.createElement("li");
-    li.textContent = `${acc.oyun} - ${acc.user} - ${acc.fiyat} - ${acc.durum}`;
-    list.appendChild(li);
+  accountsDiv.innerHTML = "";
+  dashboardDiv.style.display = "none";
+  logoutBtn.style.display = "none";
+  loginDiv.style.display = "block";
+
+  const filtered = ACCOUNTS.filter(acc => acc.durum === "satılık");
+
+  filtered.forEach(acc => {
+    const card = document.createElement("div");
+    card.className = "account-card";
+
+    card.innerHTML = `
+      <img src="${acc.img}" alt="Hesap resmi" class="account-img" />
+      <div class="account-info">
+        <h3>${acc.oyun} - ${acc.kullanici}</h3>
+        <p>${acc.aciklama}</p>
+        <p class="price">${acc.fiyat}</p>
+        <p>Durum: ${acc.durum}</p>
+      </div>
+    `;
+
+    accountsDiv.appendChild(card);
   });
-  document.getElementById("accounts").style.display = "block";
+  accountsDiv.style.display = "flex";
 }
 
 // Yetkili girişi
 function login() {
   const pw = document.getElementById("password").value;
   if (pw === "admin123") {
-    document.getElementById("login").style.display = "none";
+    loginDiv.style.display = "none";
+    accountsDiv.style.display = "none";
+    logoutBtn.style.display = "block";
     showDashboard();
   } else {
-    document.getElementById("login-msg").textContent = "Hatalı şifre!";
+    loginMsg.textContent = "Hatalı şifre!";
   }
 }
 
-// Yetkili paneli göster
+// Yetkili paneli: Tüm hesaplar, şifre dahil
 function showDashboard() {
-  const list = document.getElementById("dashboard-list");
-  list.innerHTML = "";
+  dashboardDiv.style.display = "flex";
+  dashboardDiv.innerHTML = "";
+
   ACCOUNTS.forEach(acc => {
-    const li = document.createElement("li");
-    li.textContent = `${acc.oyun} - ${acc.user} - Şifre: ${acc.pass} - ${acc.fiyat} - Durum: ${acc.durum}`;
+    const card = document.createElement("div");
+    card.className = "account-card";
+
+    card.innerHTML = `
+      <img src="${acc.img}" alt="Hesap resmi" class="account-img" />
+      <div class="account-info">
+        <h3>${acc.oyun} - ${acc.kullanici}</h3>
+        <p><strong>Şifre:</strong> ${acc.sifre}</p>
+        <p>${acc.aciklama}</p>
+        <p class="price">${acc.fiyat}</p>
+        <p>Durum: ${acc.durum}</p>
+      </div>
+    `;
+
     if (acc.durum === "satılık") {
       const btn = document.createElement("button");
       btn.textContent = "Satıldı Olarak İşaretle";
@@ -72,23 +219,28 @@ function showDashboard() {
         acc.durum = "satıldı";
         showDashboard();
       };
-      li.appendChild(btn);
+      card.appendChild(btn);
+    } else {
+      const soldLabel = document.createElement("button");
+      soldLabel.textContent = "Satıldı";
+      soldLabel.disabled = true;
+      card.appendChild(soldLabel);
     }
-    list.appendChild(li);
+
+    dashboardDiv.appendChild(card);
   });
-  document.getElementById("dashboard").style.display = "block";
 }
 
-// Çıkış yap
 function logout() {
-  document.getElementById("dashboard").style.display = "none";
-  document.getElementById("login").style.display = "block";
+  loginDiv.style.display = "block";
+  logoutBtn.style.display = "none";
+  dashboardDiv.style.display = "none";
+  loginMsg.textContent = "";
   document.getElementById("password").value = "";
-  document.getElementById("login-msg").textContent = "";
   showAccounts();
 }
 
-// Site açılınca ziyaretçi görünümü
+// Site açılınca ziyaretçi görünümü göster
 showAccounts();
 </script>
 
