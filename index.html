@@ -1,626 +1,171 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>PUBG Hesap Satış</title>
-<style>
-  /* Reset ve temel */
-  body {
-    font-family: Arial, sans-serif;
-    margin: 0; padding: 0;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: background-color 0.3s, color 0.3s;
-  }
-  :root {
-    --bg-color: #f4f4f4;
-    --text-color: #222;
-    --card-bg: white;
-    --btn-bg: #27ae60;
-    --btn-text: white;
-    --header-bg: #fff;
-    --header-text: #222;
-  }
-  body.dark {
-    --bg-color: #121212;
-    --text-color: #eee;
-    --card-bg: #1e1e1e;
-    --btn-bg: #4caf50;
-    --btn-text: #222;
-    --header-bg: #222;
-    --header-text: #eee;
-  }
-  header {
-    background-color: var(--header-bg);
-    color: var(--header-text);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
-  header .logo {
-    font-weight: bold;
-    font-size: 22px;
-  }
-  header .nav {
-    display: flex;
-    gap: 15px;
-    align-items: center;
-  }
-  header button, header span.bakiye {
-    background-color: var(--btn-bg);
-    color: var(--btn-text);
-    border: none;
-    padding: 7px 15px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 14px;
-  }
-  header button:hover {
-    opacity: 0.85;
-  }
-  #toggle-theme {
-    background-color: transparent;
-    color: var(--header-text);
-    font-weight: normal;
-    padding: 0 8px;
-    font-size: 18px;
-  }
-
-  main {
-    padding: 20px;
-    max-width: 1100px;
-    margin: auto;
-  }
-
-  #accounts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-  }
-  .account-card {
-    background: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-    width: 220px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s;
-  }
-  .account-card:hover {
-    transform: translateY(-5px);
-  }
-  .account-img {
-    width: 100%;
-    height: 140px;
-    object-fit: cover;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-  }
-  .account-info {
-    padding: 10px;
-    flex-grow: 1;
-  }
-  .account-info h3 {
-    margin: 0 0 10px 0;
-    font-size: 18px;
-  }
-  .account-info p {
-    margin: 5px 0;
-    font-size: 14px;
-    color: var(--text-color);
-  }
-  .account-info .price {
-    font-weight: bold;
-    color: #e74c3c;
-  }
-
-  /* Modal */
-  #modal {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-  }
-  #modal.active {
-    display: flex;
-  }
-  #modal-content {
-    background: var(--card-bg);
-    border-radius: 10px;
-    max-width: 400px;
-    width: 90%;
-    padding: 20px;
-    color: var(--text-color);
-    position: relative;
-  }
-  #modal-content h2 {
-    margin-top: 0;
-  }
-  #modal-close {
-    position: absolute;
-    top: 10px; right: 15px;
-    background: transparent;
-    border: none;
-    font-size: 22px;
-    color: var(--text-color);
-    cursor: pointer;
-  }
-  #modal-content p {
-    font-size: 15px;
-  }
-  #modal-content .password {
-    font-weight: bold;
-    margin: 10px 0;
-    font-size: 16px;
-  }
-  #buy-btn {
-    background-color: var(--btn-bg);
-    color: var(--btn-text);
-    border: none;
-    padding: 12px 20px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 15px;
-    width: 100%;
-  }
-  #buy-btn:disabled {
-    background-color: #888;
-    cursor: default;
-  }
-
-  /* Mesaj bölümü */
-  #messages {
-    margin-top: 40px;
-    max-width: 700px;
-    margin-left: auto;
-    margin-right: auto;
-    background: var(--card-bg);
-    border-radius: 8px;
-    padding: 15px;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
-    color: var(--text-color);
-  }
-  #messages h3 {
-    margin-top: 0;
-    text-align: center;
-  }
-  #message-list {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 10px;
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-  }
-  #message-list p {
-    margin: 8px 0;
-    font-size: 14px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 6px;
-  }
-
-  /* Giriş ve kayıt modal */
-  #auth-modal {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  #auth-modal.active {
-    display: flex;
-  }
-  #auth-content {
-    background: var(--card-bg);
-    border-radius: 10px;
-    max-width: 350px;
-    width: 90%;
-    padding: 20px;
-    color: var(--text-color);
-    position: relative;
-  }
-  #auth-content h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-  }
-  #auth-close {
-    position: absolute;
-    top: 10px; right: 15px;
-    background: transparent;
-    border: none;
-    font-size: 22px;
-    color: var(--text-color);
-    cursor: pointer;
-  }
-  #auth-content input {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-  }
-  #auth-content button {
-    background-color: var(--btn-bg);
-    color: var(--btn-text);
-    border: none;
-    padding: 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    width: 100%;
-  }
-  #auth-content button:hover {
-    opacity: 0.9;
-  }
-  #auth-msg {
-    color: red;
-    font-size: 14px;
-    margin-top: 5px;
-  }
-
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REZAR & STORY - PUBG Hesap Satış</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            transition: all 0.3s ease;
+        }
+        .dark-theme {
+            background-color: #333;
+            color: #fff;
+        }
+        .light-theme {
+            background-color: #fff;
+            color: #000;
+        }
+        header {
+            padding: 10px;
+            background-color: #444;
+            color: #fff;
+            text-align: center;
+        }
+        #theme-toggle {
+            cursor: pointer;
+        }
+        nav a {
+            color: #fff;
+            margin: 10px;
+        }
+        .container {
+            padding: 20px;
+        }
+        input {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
 <header>
-  <div class="logo">PUBG Hesap Satış</div>
-  <div class="nav">
-    <span class="bakiye">Bakiye: <span id="balance">0₺</span></span>
-    <button id="login-btn">Giriş Yap</button>
-    <button id="register-btn">Kayıt Ol</button>
-    <button id="toggle-theme" title="Karanlık / Aydınlık Mod">🌓</button>
-  </div>
+    <button id="theme-toggle">🌙</button>
+    <h1>REZAR & STORY</h1>
+    <nav>
+        <a href="#register" id="register-link">Kayıt Ol</a>
+        <a href="#login" id="login-link">Giriş Yap</a>
+    </nav>
 </header>
 
-<main>
-  <div id="accounts"></div>
-
-  <!-- Hesap detay modal -->
-  <div id="modal">
-    <div id="modal-content">
-      <button id="modal-close">&times;</button>
-      <h2 id="modal-title"></h2>
-      <p id="modal-description"></p>
-      <p><strong>Şifre:</strong> <span id="modal-password"></span></p>
-      <p><strong>Fiyat:</strong> <span id="modal-price"></span></p>
-      <button id="buy-btn">Satın Al</button>
-    </div>
-  </div>
-
-  <!-- Mesajlar -->
-  <section id="messages">
-    <h3>Satın Alınan Hesap Bilgileri</h3>
-    <div id="message-list">
-      <p>Henüz satın alınan hesap yok.</p>
-    </div>
-  </section>
-</main>
-
-<!-- Giriş / Kayıt modal -->
-<div id="auth-modal">
-  <div id="auth-content">
-    <button id="auth-close">&times;</button>
-    <h2 id="auth-title">Giriş Yap</h2>
-    <input type="text" id="username" placeholder="Kullanıcı Adı" />
-    <input type="password" id="user-password" placeholder="Şifre" />
-    <button id="auth-submit">Giriş Yap</button>
-    <p id="auth-msg"></p>
-  </div>
+<div class="container">
+    <h2 id="form-title">Kayıt Ol</h2>
+    <form id="auth-form">
+        <input type="email" id="email" placeholder="E-posta" required>
+        <input type="password" id="password" placeholder="Şifre" required>
+        <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+        <div class="g-recaptcha" data-sitekey="YOUR_RECAPTCHA_SITE_KEY"></div>
+        <button type="submit">Kayıt Ol</button>
+    </form>
 </div>
 
+<!-- Firebase Configuration -->
 <script>
-  // Hesap verileri
-  const ACCOUNTS = [
-    {
-      id: 1,
-      oyun: "PUBG",
-      kullanici: "player1",
-      sifre: "1234",
-      fiyat: 150,
-      durum: "satılık",
-      aciklama: "Yüksek seviye hesap, skinler dahil.",
-      img: "https://i.imgur.com/Q7tFkRT.jpg"
-    },
-    {
-      id: 2,
-      oyun: "PUBG",
-      kullanici: "player2",
-      sifre: "abcd",
-      fiyat: 200,
-      durum: "satılık",
-      aciklama: "Özel silahlar ve oyun içi para mevcut.",
-      img: "https://i.imgur.com/lZP3zzN.jpg"
-    },
-    {
-      id: 3,
-      oyun: "PUBG",
-      kullanici: "player3",
-      sifre: "pass777",
-      fiyat: 120,
-      durum: "satıldı",
-      aciklama: "Orta seviye hesap, uygun fiyat.",
-      img: "https://i.imgur.com/Zr6hvRu.jpg"
-    }
-  ];
+    const firebaseConfig = {
+        apiKey: "YOUR_FIREBASE_API_KEY",
+        authDomain: "YOUR_FIREBASE_AUTH_DOMAIN",
+        projectId: "YOUR_FIREBASE_PROJECT_ID",
+        storageBucket: "YOUR_FIREBASE_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
+        appId: "YOUR_FIREBASE_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-  // DOM elementleri
-  const accountsDiv = document.getElementById("accounts");
-  const modal = document.getElementById("modal");
-  const modalTitle = document.getElementById("modal-title");
-  const modalDesc = document.getElementById("modal-description");
-  const modalPass = document.getElementById("modal-password");
-  const modalPrice = document.getElementById("modal-price");
-  const buyBtn = document.getElementById("buy-btn");
-  const modalClose = document.getElementById("modal-close");
-  const messageList = document.getElementById("message-list");
-  const balanceSpan = document.getElementById("balance");
-  const loginBtn = document.getElementById("login-btn");
-  const registerBtn = document.getElementById("register-btn");
-  const authModal = document.getElementById("auth-modal");
-  const authClose = document.getElementById("auth-close");
-  const authTitle = document.getElementById("auth-title");
-  const usernameInput = document.getElementById("username");
-  const userPasswordInput = document.getElementById("user-password");
-  const authSubmitBtn = document.getElementById("auth-submit");
-  const authMsg = document.getElementById("auth-msg");
-  const toggleThemeBtn = document.getElementById("toggle-theme");
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-  // Local Storage keyler
-  const USERS_KEY = "users_pubg_site";
-  const LOGGEDIN_KEY = "logged_in_user";
-  const BALANCE_KEY = "user_balance";
-  const MESSAGES_KEY = "user_messages";
+    const themeToggle = document.getElementById('theme-toggle');
+    const formTitle = document.getElementById('form-title');
+    const authForm = document.getElementById('auth-form');
 
-  let selectedAccount = null;
-  let currentUser = null;
-  let users = JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-  let messages = JSON.parse(localStorage.getItem(MESSAGES_KEY)) || [];
-
-  // Tema kontrolü
-  function setTheme(dark) {
-    if (dark) {
-      document.body.classList.add("dark");
-      localStorage.setItem("darkMode", "true");
-    } else {
-      document.body.classList.remove("dark");
-      localStorage.setItem("darkMode", "false");
-    }
-  }
-  // Başlangıç teması
-  setTheme(localStorage.getItem("darkMode") === "true");
-
-  toggleThemeBtn.onclick = () => {
-    const dark = document.body.classList.contains("dark");
-    setTheme(!dark);
-  };
-
-  // Kullanıcı bakiye
-  function getBalance() {
-    if (!currentUser) return 0;
-    const bal = localStorage.getItem(BALANCE_KEY + "_" + currentUser.username);
-    return bal ? parseInt(bal) : 0;
-  }
-  function setBalance(amount) {
-    if (!currentUser) return;
-    localStorage.setItem(BALANCE_KEY + "_" + currentUser.username, amount);
-    balanceSpan.textContent = amount + "₺";
-  }
-
-  // Kullanıcı giriş kontrolü
-  function checkLoggedIn() {
-    const loggedUser = localStorage.getItem(LOGGEDIN_KEY);
-    if (!loggedUser) {
-      currentUser = null;
-      balanceSpan.textContent = "0₺";
-      loginBtn.style.display = "inline-block";
-      registerBtn.style.display = "inline-block";
-      return false;
-    }
-    currentUser = JSON.parse(loggedUser);
-    loginBtn.style.display = "none";
-    registerBtn.style.display = "none";
-    balanceSpan.textContent = getBalance() + "₺";
-    return true;
-  }
-
-  // Kullanıcı kayıt
-  function register(username, password) {
-    if (!username || !password) {
-      authMsg.textContent = "Lütfen tüm alanları doldurun.";
-      return false;
-    }
-    if (users.find(u => u.username === username)) {
-      authMsg.textContent = "Bu kullanıcı adı zaten var.";
-      return false;
-    }
-    const newUser = {username, password};
-    users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    authMsg.textContent = "";
-    alert("Kayıt başarılı! Lütfen giriş yapın.");
-    return true;
-  }
-
-  // Kullanıcı giriş
-  function login(username, password) {
-    const user = users.find(u => u.username === username && u.password === password);
-    if (!user) {
-      authMsg.textContent = "Kullanıcı adı veya şifre yanlış.";
-      return false;
-    }
-    localStorage.setItem(LOGGEDIN_KEY, JSON.stringify(user));
-    currentUser = user;
-    if (!localStorage.getItem(BALANCE_KEY + "_" + currentUser.username)) {
-      setBalance(500); // yeni kullanıcıya başlangıç bakiyesi
-    }
-    authMsg.textContent = "";
-    return true;
-  }
-
-  // Çıkış yap
-  function logout() {
-    localStorage.removeItem(LOGGEDIN_KEY);
-    currentUser = null;
-    balanceSpan.textContent = "0₺";
-    loginBtn.style.display = "inline-block";
-    registerBtn.style.display = "inline-block";
-    renderAccounts();
-    renderMessages();
-  }
-
-  // Modal aç/kapa
-  function openModal(account) {
-    selectedAccount = account;
-    modalTitle.textContent = account.oyun + " - " + account.kullanici;
-    modalDesc.textContent = account.aciklama;
-    modalPass.textContent = account.sifre;
-    modalPrice.textContent = account.fiyat + "₺";
-    buyBtn.disabled = account.durum !== "satılık" || !currentUser || getBalance() < account.fiyat;
-    modal.classList.add("active");
-  }
-  function closeModal() {
-    modal.classList.remove("active");
-  }
-
-  modalClose.onclick = closeModal;
-  modal.onclick = e => { if(e.target === modal) closeModal(); };
-
-  // Hesap satın alma
-  buyBtn.onclick = () => {
-    if (!currentUser) {
-      alert("Lütfen önce giriş yapın.");
-      closeModal();
-      openAuthModal("login");
-      return;
-    }
-    if (selectedAccount.durum !== "satılık") {
-      alert("Bu hesap satılmış.");
-      closeModal();
-      return;
-    }
-    let balance = getBalance();
-    if (balance < selectedAccount.fiyat) {
-      alert("Bakiyeniz yeterli değil.");
-      closeModal();
-      return;
-    }
-    // Bakiyeyi düş
-    balance -= selectedAccount.fiyat;
-    setBalance(balance);
-
-    // Hesabı satıldı yap
-    selectedAccount.durum = "satıldı";
-    renderAccounts();
-    closeModal();
-
-    // Mesaj listesine ekle
-    addMessage(`Hesap satın alındı: ${selectedAccount.oyun} - ${selectedAccount.kullanici} | Şifre: ${selectedAccount.sifre}`);
-
-    alert("Hesap başarıyla satın alındı!");
-  };
-
-  // Mesaj ekle
-  function addMessage(text) {
-    if (messages.length === 1 && messages[0] === "Henüz satın alınan hesap yok.") messages = [];
-    messages.push(text);
-    localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
-    renderMessages();
-  }
-
-  // Mesajları göster
-  function renderMessages() {
-    if (messages.length === 0) {
-      messageList.innerHTML = "<p>Henüz satın alınan hesap yok.</p>";
-      return;
-    }
-    messageList.innerHTML = "";
-    messages.forEach(m => {
-      const p = document.createElement("p");
-      p.textContent = m;
-      messageList.appendChild(p);
-    });
-  }
-
-  // Hesapları göster
-  function renderAccounts() {
-    accountsDiv.innerHTML = "";
-    ACCOUNTS.forEach(acc => {
-      if(acc.durum === "satıldı") return; // sadece satılık olanları göster
-
-      const card = document.createElement("div");
-      card.className = "account-card";
-      card.title = "Detay için tıklayın";
-      card.innerHTML = `
-        <img src="${acc.img}" alt="Hesap resmi" class="account-img" />
-        <div class="account-info">
-          <h3>${acc.oyun} - ${acc.kullanici}</h3>
-          <p class="price">${acc.fiyat}₺</p>
-        </div>
-      `;
-      card.onclick = () => openModal(acc);
-      accountsDiv.appendChild(card);
+    // Tema geçişi
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+        localStorage.setItem('theme', currentTheme);
     });
 
-    // Satılmış hesaplar görünmesin ama modalda durum gösterilebilir dilersen.
-  }
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.classList.add(savedTheme === 'dark' ? 'dark-theme' : 'light-theme');
+    });
 
-  // Giriş / Kayıt modal kontrol
-  let authMode = "login"; // veya register
+    // Kayıt ve Giriş İşlemleri
+    authForm.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-  function openAuthModal(mode) {
-    authMode = mode;
-    authModal.classList.add("active");
-    authMsg.textContent = "";
-    usernameInput.value = "";
-    userPasswordInput.value = "";
-    authTitle.textContent = mode === "login" ? "Giriş Yap" : "Kayıt Ol";
-    authSubmitBtn.textContent = mode === "login" ? "Giriş Yap" : "Kayıt Ol";
-  }
-  function closeAuthModal() {
-    authModal.classList.remove("active");
-  }
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const username = document.getElementById('username').value;
 
-  authClose.onclick = closeAuthModal;
-  authModal.onclick = e => { if(e.target === authModal) closeAuthModal(); };
+        // reCAPTCHA doğrulaması
+        const recaptchaResponse = grecaptcha.getResponse();
+        if (!recaptchaResponse) {
+            alert("Lütfen robot olmadığınızı doğrulayın!");
+            return;
+        }
 
-  authSubmitBtn.onclick = () => {
-    const username = usernameInput.value.trim();
-    const password = userPasswordInput.value.trim();
-    if(authMode === "login") {
-      if(login(username, password)) {
-        closeAuthModal();
-        checkLoggedIn();
-        renderAccounts();
-      }
-    } else {
-      if(register(username, password)) {
-        openAuthModal("login");
-      }
-    }
-  };
+        // Firebase ile kullanıcı kaydı
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
 
-  // Butonlar
-  loginBtn.onclick = () => openAuthModal("login");
-  registerBtn.onclick = () => openAuthModal("register");
+                // Kullanıcı bilgilerini Firestore'a kaydet
+                db.collection("users").doc(user.uid).set({
+                    username: username,
+                    email: email
+                }).then(() => {
+                    alert('Kayıt başarılı! Giriş yapabilirsiniz.');
+                    window.location.href = '#login'; // Giriş sayfasına yönlendir
+                }).catch((error) => {
+                    alert("Kayıt sırasında hata oluştu: " + error.message);
+                });
+            })
+            .catch((error) => {
+                alert("Kayıt sırasında hata oluştu: " + error.message);
+            });
+    });
 
-  // Sayfa ilk açılışta
-  checkLoggedIn();
-  renderAccounts();
-  renderMessages();
+    // Giriş Yapma
+    document.getElementById('login-link').addEventListener('click', () => {
+        formTitle.textContent = 'Giriş Yap';
+        authForm.innerHTML = `
+            <input type="email" id="email" placeholder="E-posta" required>
+            <input type="password" id="password" placeholder="Şifre" required>
+            <button type="submit">Giriş Yap</button>
+        `;
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    alert('Giriş başarılı!');
+                    // Giriş başarılıysa admin veya kullanıcı paneline yönlendirebilirsin.
+                })
+                .catch((error) => {
+                    alert("Giriş sırasında hata oluştu: " + error.message);
+                });
+        });
+    });
 </script>
 
 </body>
