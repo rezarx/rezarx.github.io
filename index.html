@@ -603,4 +603,25 @@
     if(authMode === "login") {
       if(login(username, password)) {
         closeAuthModal();
-        checkLoggedIn
+        checkLoggedIn();
+        renderAccounts();
+      }
+    } else {
+      if(register(username, password)) {
+        openAuthModal("login");
+      }
+    }
+  };
+
+  // Butonlar
+  loginBtn.onclick = () => openAuthModal("login");
+  registerBtn.onclick = () => openAuthModal("register");
+
+  // Sayfa ilk açılışta
+  checkLoggedIn();
+  renderAccounts();
+  renderMessages();
+</script>
+
+</body>
+</html>
